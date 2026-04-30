@@ -3,7 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Кликер · Мобильная версия</title>
+    <title>Кликер · Синхронизация через Google</title>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Импорт Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+        
+        // Конфигурация Firebase (БЕСПЛАТНЫЙ проект)
+        // !!! ЗАМЕНИТЕ НА ВАШИ ДАННЫЕ ИЗ FIREBASE CONSOLE !!!
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKoONbpKwe1LVEMcehhSPNrNZD3vqy0tE",
+            authDomain: "kliker-b4acc.firebaseapp.com",
+            databaseURL: "https://clicker-sync-demo-default-rtdb.firebaseio.com",
+            projectId: "kliker-b4acc",
+            storageBucket: "kliker-b4acc.firebasestorage.app",
+            messagingSenderId: "481684619013",
+            appId: "1:481684619013:web:61ba4fb4e91ad9e897816c"
+        };
+        
+        // Инициализация
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+        
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.provider = provider;
+        window.signInWithPopup = signInWithPopup;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        window.ref = ref;
+        window.set = set;
+        window.get = get;
+        window.onValue = onValue;
+    </script>
+    
     <style>
         * {
             user-select: none;
@@ -29,8 +67,68 @@
             backdrop-filter: blur(16px);
             border-radius: 44px;
             border: 1px solid rgba(255, 200, 100, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+        }
+
+        /* Панель авторизации */
+        .auth-bar {
+            background: #0a111ccc;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #ffd96650;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ffb347;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .user-name {
+            font-size: 0.8rem;
+            color: #ffd5a4;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, #ffb347, #ff8c1a);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.7rem;
+            color: #1f1b10;
+            cursor: pointer;
+            transition: 0.05s linear;
+            touch-action: manipulation;
+        }
+
+        .auth-btn:active {
+            transform: scale(0.96);
+        }
+
+        .auth-btn.logout {
+            background: #4a2a1a;
+            color: #ffd5a4;
         }
 
         /* Слайдер страниц */
@@ -45,7 +143,6 @@
             padding: 18px 14px 22px;
         }
 
-        /* Панель статистики */
         .stats-panel {
             background: #0a111ccc;
             border-radius: 60px;
@@ -55,9 +152,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 10px;
-            backdrop-filter: blur(8px);
             border: 1px solid #ffd96650;
-            box-shadow: inset 0 1px 3px #00000030, 0 6px 14px rgba(0,0,0,0.3);
         }
 
         .score-box {
@@ -67,14 +162,12 @@
             display: flex;
             align-items: baseline;
             gap: 6px;
-            box-shadow: inset 0 0 6px #ffdf9e, 0 3px 8px black;
             flex: 1;
             justify-content: center;
         }
 
         .score-label {
             font-weight: 700;
-            letter-spacing: 0.5px;
             color: #ffcd7e;
             font-size: 0.8rem;
         }
@@ -86,7 +179,6 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            line-height: 1;
             font-family: monospace;
         }
 
@@ -97,13 +189,6 @@
             display: flex;
             align-items: baseline;
             gap: 5px;
-            font-weight: bold;
-            box-shadow: inset 0 0 3px #ffbd5a, 0 4px 12px black;
-        }
-
-        .mult-label {
-            color: #e8bc7e;
-            font-size: 0.7rem;
         }
 
         .mult-value {
@@ -113,7 +198,6 @@
             font-family: monospace;
         }
 
-        /* Кликер — большой для пальца */
         .click-area {
             display: flex;
             justify-content: center;
@@ -130,20 +214,18 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 16px 24px rgba(0, 0, 0, 0.5), inset 0 -5px 0 #a35119, inset 0 3px 10px rgba(255,255,200,0.9);
-            transition: transform 0.05s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.08s ease;
+            box-shadow: 0 16px 24px rgba(0, 0, 0, 0.5), inset 0 -5px 0 #a35119;
+            transition: transform 0.05s;
             border: none;
             touch-action: manipulation;
         }
 
         .clicker-button:active {
             transform: scale(0.94);
-            box-shadow: 0 8px 16px black, inset 0 -2px 0 #a35119;
         }
 
         .click-icon {
             font-size: 3.2rem;
-            filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.4));
         }
 
         .click-text {
@@ -156,7 +238,6 @@
             margin-top: 5px;
         }
 
-        /* Блок автокликера */
         .auto-control {
             background: #07121a;
             border-radius: 35px;
@@ -174,7 +255,6 @@
             color: #ffc285;
             font-weight: bold;
             flex: 1;
-            line-height: 1.3;
         }
 
         .toggle-auto-btn {
@@ -186,15 +266,7 @@
             font-size: 0.7rem;
             color: #d4ffb0;
             cursor: pointer;
-            transition: 0.05s linear;
-            font-family: inherit;
             touch-action: manipulation;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            white-space: nowrap;
-        }
-
-        .toggle-auto-btn:active {
-            transform: scale(0.96);
         }
 
         .toggle-auto-btn.off {
@@ -202,7 +274,6 @@
             color: #ffb0b0;
         }
 
-        /* Кнопка перехода */
         .nav-button {
             background: linear-gradient(135deg, #ffb347, #ff8c1a);
             border: none;
@@ -217,17 +288,14 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            transition: 0.05s linear;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-family: inherit;
             margin-bottom: 14px;
+            touch-action: manipulation;
         }
 
         .nav-button:active {
             transform: scale(0.97);
         }
 
-        /* Магазин */
         .shop-header {
             display: flex;
             align-items: center;
@@ -246,14 +314,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: 0.05s linear;
             color: #ffd5a4;
             touch-action: manipulation;
         }
 
         .back-btn:active {
             transform: scale(0.92);
-            background: #4c2c14;
         }
 
         .shop-title {
@@ -271,32 +337,14 @@
             gap: 8px;
             max-height: 420px;
             overflow-y: auto;
-            padding-right: 3px;
-            -webkit-overflow-scrolling: touch;
         }
         
         .items-grid::-webkit-scrollbar {
             width: 3px;
         }
-        
-        .items-grid::-webkit-scrollbar-track {
-            background: #1e2a32;
-            border-radius: 10px;
-        }
-        
-        .items-grid::-webkit-scrollbar-thumb {
-            background: #ffb347;
-            border-radius: 10px;
-        }
-
-        @keyframes slideInItem {
-            0% { opacity: 0; transform: translateX(-15px); }
-            100% { opacity: 1; transform: translateX(0); }
-        }
 
         .shop-item {
             background: #0d1b24cc;
-            backdrop-filter: blur(4px);
             border-radius: 50px;
             padding: 8px 12px 8px 16px;
             display: flex;
@@ -305,8 +353,6 @@
             flex-wrap: wrap;
             gap: 6px;
             border: 1px solid #e2b15b60;
-            animation: slideInItem 0.25s ease forwards;
-            opacity: 0;
         }
 
         .item-info {
@@ -324,13 +370,11 @@
             align-items: center;
             gap: 6px;
             color: #ffeaac;
-            flex-wrap: wrap;
         }
 
         .item-desc {
             font-size: 0.6rem;
             color: #bbaa88;
-            line-height: 1.3;
         }
 
         .limit-badge {
@@ -338,7 +382,6 @@
             padding: 2px 8px;
             border-radius: 25px;
             font-size: 0.55rem;
-            font-weight: bold;
             color: #ffbc6e;
         }
 
@@ -355,7 +398,6 @@
             font-weight: 800;
             font-size: 1rem;
             color: #ffc285;
-            white-space: nowrap;
         }
 
         .price small {
@@ -371,32 +413,25 @@
             border-radius: 35px;
             color: #1f1b10;
             cursor: pointer;
-            box-shadow: 0 2px 0 #7a3e0c;
-            transition: 0.03s linear;
-            font-family: inherit;
             touch-action: manipulation;
         }
 
         .buy-btn:active {
             transform: translateY(2px);
-            box-shadow: 0 0px 0 #7a3e0c;
         }
 
         .buy-btn.disabled-btn, .buy-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             background: #6f5a42;
-            transform: none;
         }
         
         .maxed-badge {
             background: #2d2a1e;
             color: #ffaa55;
-            font-weight: bold;
             padding: 3px 10px;
             border-radius: 30px;
             font-size: 0.65rem;
-            white-space: nowrap;
         }
 
         .reset-area {
@@ -414,7 +449,6 @@
             font-weight: bold;
             font-size: 0.75rem;
             cursor: pointer;
-            transition: 0.05s;
             touch-action: manipulation;
         }
 
@@ -446,38 +480,21 @@
             70% { opacity: 0.9; transform: translateY(-38px) scale(1.1); }
             100% { opacity: 0; transform: translateY(-65px) scale(0.9); }
         }
-
-        @media (max-width: 400px) {
-            .page {
-                padding: 14px 12px 18px;
-            }
-            .clicker-button {
-                width: 150px;
-                height: 150px;
-            }
-            .click-icon {
-                font-size: 2.6rem;
-            }
-            .score-value {
-                font-size: 1.5rem;
-            }
-            .mult-value {
-                font-size: 1.1rem;
-            }
-            .auto-stats-text {
-                font-size: 0.65rem;
-            }
-            .toggle-auto-btn {
-                padding: 5px 12px;
-                font-size: 0.65rem;
-            }
-        }
     </style>
 </head>
 <body>
 <div class="game-container">
+    <!-- Панель входа -->
+    <div class="auth-bar">
+        <div class="user-info" id="userInfo">
+            <div class="user-avatar">👤</div>
+            <div class="user-name" id="userName">Не авторизован</div>
+        </div>
+        <button class="auth-btn" id="authBtn">Войти через Google</button>
+    </div>
+
     <div class="pages-container" id="pagesContainer">
-        <!-- Страница 1: Кликер -->
+        <!-- Страница кликера -->
         <div class="page" id="pageClicker">
             <div class="stats-panel">
                 <div class="score-box">
@@ -485,7 +502,6 @@
                     <span class="score-value" id="counterDisplay">0</span>
                 </div>
                 <div class="multiplier-badge">
-                    <span class="mult-label">×</span>
                     <span class="mult-value" id="multiplierDisplay">1</span>
                 </div>
             </div>
@@ -502,9 +518,7 @@
                 <button class="toggle-auto-btn" id="toggleAutoBtn">🔘 ВКЛ</button>
             </div>
 
-            <button class="nav-button" id="openShopBtn">
-                🛒 МАГАЗИН →
-            </button>
+            <button class="nav-button" id="openShopBtn">🛒 МАГАЗИН →</button>
 
             <div class="reset-area">
                 <button class="reset-btn" id="resetGameBtn">♻️ СБРОС</button>
@@ -512,7 +526,7 @@
             <footer>👆 Тапай | 🤖 Вкл/Выкл | 🛒 Улучшения</footer>
         </div>
 
-        <!-- Страница 2: Магазин -->
+        <!-- Страница магазина -->
         <div class="page" id="pageShop">
             <div class="stats-panel">
                 <div class="score-box">
@@ -520,7 +534,6 @@
                     <span class="score-value" id="counterDisplay2">0</span>
                 </div>
                 <div class="multiplier-badge">
-                    <span class="mult-label">×</span>
                     <span class="mult-value" id="multiplierDisplay2">1</span>
                 </div>
             </div>
@@ -541,7 +554,7 @@
 </div>
 
 <script>
-    // ========== ИГРОВЫЕ ДАННЫЕ ==========
+    // ========== ИГРОВАЯ ЛОГИКА ==========
     let totalPoints = 0;          
     let clickPower = 1;           
     let globalMultiplier = 1;     
@@ -549,6 +562,8 @@
     const MAX_ITEM_COUNT = 50;
     let autoEnabled = true;
     let autoInterval = null;
+    let currentUser = null;
+    let isSyncing = false;
 
     const shopItems = [
         { id: "power1", name: "💪 Палец", desc: "+1 силе", basePrice: 15, type: "power", value: 1, boughtCount: 0, priceScale: 1.25, maxCount: MAX_ITEM_COUNT },
@@ -559,7 +574,7 @@
         { id: "auto", name: "🤖 Авто", desc: "+2/сек", basePrice: 50, type: "auto", value: 2, boughtCount: 0, priceScale: 1.35, maxCount: MAX_ITEM_COUNT }
     ];
 
-    // DOM
+    // DOM элементы
     const pagesContainer = document.getElementById("pagesContainer");
     const counterDisplay = document.getElementById("counterDisplay");
     const counterDisplay2 = document.getElementById("counterDisplay2");
@@ -573,6 +588,8 @@
     const backToClickerBtn = document.getElementById("backToClickerBtn");
     const resetBtn = document.getElementById("resetGameBtn");
     const resetBtn2 = document.getElementById("resetGameBtn2");
+    const authBtn = document.getElementById("authBtn");
+    const userNameSpan = document.getElementById("userName");
 
     let currentPage = 0;
     let shopInitialized = false;
@@ -659,11 +676,9 @@
         if (autoEnabled) {
             toggleAutoBtn.innerText = "⏸️ ВЫКЛ";
             toggleAutoBtn.classList.remove("off");
-            toggleAutoBtn.style.background = "linear-gradient(135deg, #2c5a2e, #1e3a20)";
         } else {
             toggleAutoBtn.innerText = "▶️ ВКЛ";
             toggleAutoBtn.classList.add("off");
-            toggleAutoBtn.style.background = "linear-gradient(135deg, #5a2c2c, #3a1e1e)";
         }
     }
 
@@ -677,7 +692,7 @@
                 const gained = base * globalMultiplier;
                 totalPoints += gained;
                 updateCounters();
-                saveGame();
+                syncToCloud();
                 if (currentPage === 1 && shopInitialized) updateShopUI();
                 showFloat(`🤖 +${Math.floor(gained)}`, 75, 12);
             }
@@ -689,7 +704,7 @@
         updateAutoUI();
         restartAutoTimer();
         showMsg(autoEnabled ? "▶️ Авто вкл" : "⏸️ Авто выкл", autoEnabled ? "#aaffaa" : "#ffaa66");
-        saveGame();
+        syncToCloud();
     }
 
     function getPrice(item) {
@@ -716,7 +731,7 @@
             updateAutoUI();
             updateCounters();
             if (currentPage === 1 && shopInitialized) updateShopUI();
-            saveGame();
+            syncToCloud();
             showMsg(`✔ ${item.name} (${item.boughtCount}/${item.maxCount})`, "#b5e0a0");
         } else {
             showMsg("😭 Не хватает!", "#ffaa66");
@@ -733,7 +748,7 @@
         
         updateCounters();
         if (currentPage === 1 && shopInitialized) updateShopUI();
-        saveGame();
+        syncToCloud();
     }
 
     function updateCounters() {
@@ -776,7 +791,6 @@
             
             const div = document.createElement("div");
             div.className = "shop-item";
-            div.style.animationDelay = `${i * 0.04}s`;
             
             const info = document.createElement("div");
             info.className = "item-info";
@@ -835,6 +849,88 @@
         }
     }
 
+    // Сохранение в облако
+    async function syncToCloud() {
+        if (!currentUser || isSyncing) return;
+        try {
+            const db = window.firebaseDb;
+            const userRef = window.ref(db, `users/${currentUser.uid}`);
+            await window.set(userRef, {
+                points: totalPoints,
+                clickPower: clickPower,
+                autoEnabled: autoEnabled,
+                shopItems: shopItems.map(i => ({ id: i.id, count: i.boughtCount }))
+            });
+        } catch(e) { console.log("Sync error:", e); }
+    }
+
+    // Загрузка из облака
+    async function loadFromCloud(user) {
+        isSyncing = true;
+        try {
+            const db = window.firebaseDb;
+            const userRef = window.ref(db, `users/${user.uid}`);
+            const snapshot = await window.get(userRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                totalPoints = data.points || 0;
+                clickPower = data.clickPower || 1;
+                autoEnabled = data.autoEnabled !== undefined ? data.autoEnabled : true;
+                if (data.shopItems) {
+                    for (let s of data.shopItems) {
+                        const target = shopItems.find(i => i.id === s.id);
+                        if (target && s.count <= target.maxCount) target.boughtCount = s.count;
+                    }
+                }
+                recalcMultiplier();
+                updateAutoUI();
+                updateCounters();
+                if (shopInitialized) updateShopUI();
+            }
+        } catch(e) { console.log("Load error:", e); }
+        isSyncing = false;
+        restartAutoTimer();
+    }
+
+    // Firebase Auth
+    async function initFirebaseAuth() {
+        const auth = window.firebaseAuth;
+        const signInWithPopup = window.signInWithPopup;
+        const provider = window.provider;
+        const onAuthStateChanged = window.onAuthStateChanged;
+        const signOut = window.signOut;
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                userNameSpan.innerText = user.displayName || user.email?.split('@')[0] || "Игрок";
+                authBtn.innerText = "🚪 Выйти";
+                authBtn.classList.add("logout");
+                await loadFromCloud(user);
+                showMsg("✅ Данные синхронизированы", "#aaffaa");
+            } else {
+                currentUser = null;
+                userNameSpan.innerText = "Не авторизован";
+                authBtn.innerText = "Войти через Google";
+                authBtn.classList.remove("logout");
+            }
+        });
+        
+        authBtn.addEventListener("click", async () => {
+            if (currentUser) {
+                await signOut(auth);
+                showMsg("👋 Выход выполнен", "#ffaa66");
+            } else {
+                try {
+                    const result = await signInWithPopup(auth, provider);
+                    showMsg(`👋 Привет, ${result.user.displayName || "игрок"}!`, "#aaffaa");
+                } catch(e) {
+                    showMsg("Ошибка входа", "#ff8866");
+                }
+            }
+        });
+    }
+
     function resetGame() {
         if (confirm("Сбросить всё?")) {
             totalPoints = 0;
@@ -848,45 +944,14 @@
             shopInitialized = false;
             renderShop();
             shopInitialized = true;
-            saveGame();
+            syncToCloud();
             showMsg("✨ Сброшено", "#ffd966");
             if (currentPage === 1) switchPage(0);
         }
     }
 
-    function saveGame() {
-        localStorage.setItem("clickerSave", JSON.stringify({
-            points: totalPoints,
-            power: clickPower,
-            autoEnabled: autoEnabled,
-            items: shopItems.map(i => ({ id: i.id, count: i.boughtCount }))
-        }));
-    }
-
-    function loadGame() {
-        const raw = localStorage.getItem("clickerSave");
-        if (!raw) return false;
-        try {
-            const data = JSON.parse(raw);
-            totalPoints = data.points || 0;
-            clickPower = data.power || 1;
-            autoEnabled = data.autoEnabled !== undefined ? data.autoEnabled : true;
-            if (data.items) {
-                for (let s of data.items) {
-                    const target = shopItems.find(i => i.id === s.id);
-                    if (target && s.count <= target.maxCount) target.boughtCount = s.count;
-                }
-            }
-            recalcMultiplier();
-            updateAutoUI();
-            restartAutoTimer();
-            updateCounters();
-            return true;
-        } catch(e) { return false; }
-    }
-
     function init() {
-        loadGame();
+        initFirebaseAuth();
         recalcMultiplier();
         updateAutoUI();
         updateCounters();
