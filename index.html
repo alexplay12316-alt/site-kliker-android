@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Кликер · Телефон · Анимация</title>
+    <title>Кликер · Энергия · Телефон</title>
     <style>
         * {
             user-select: none;
@@ -44,17 +44,10 @@
         }
 
         @keyframes containerPop {
-            0% {
-                transform: scale(0.96);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
+            0% { transform: scale(0.96); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Слайдер страниц */
         .pages-container {
             display: flex;
             transition: transform 0.3s cubic-bezier(0.2, 0.85, 0.4, 1);
@@ -63,17 +56,18 @@
 
         .page {
             flex: 0 0 100%;
-            padding: 18px 14px 22px;
+            padding: 16px 12px 20px;
         }
 
         /* Анимация появления элементов */
-        .stats-panel, .click-area, .auto-control, .nav-button, .reset-area, footer {
+        .stats-panel, .energy-panel, .click-area, .auto-control, .nav-button, .reset-area, footer {
             opacity: 0;
             transform: translateY(12px);
             animation: slideUpFade 0.4s ease-out forwards;
         }
 
-        .stats-panel { animation-delay: 0.12s; }
+        .stats-panel { animation-delay: 0.1s; }
+        .energy-panel { animation-delay: 0.15s; }
         .click-area { animation-delay: 0.2s; }
         .auto-control { animation-delay: 0.28s; }
         .nav-button { animation-delay: 0.36s; }
@@ -81,14 +75,8 @@
         footer { animation-delay: 0.52s; }
 
         @keyframes slideUpFade {
-            0% {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         /* Панель статистики */
@@ -96,7 +84,7 @@
             background: #0a111ccc;
             border-radius: 60px;
             padding: 8px 14px;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -120,7 +108,6 @@
 
         .score-label {
             font-weight: 700;
-            letter-spacing: 0.5px;
             color: #ffcd7e;
             font-size: 0.8rem;
         }
@@ -132,7 +119,6 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            line-height: 1;
             font-family: monospace;
         }
 
@@ -147,11 +133,6 @@
             box-shadow: inset 0 0 3px #ffbd5a, 0 4px 12px black;
         }
 
-        .mult-label {
-            color: #e8bc7e;
-            font-size: 0.7rem;
-        }
-
         .mult-value {
             font-size: 1.3rem;
             font-weight: 800;
@@ -159,7 +140,72 @@
             font-family: monospace;
         }
 
-        /* Кнопка клика — большая, удобная для пальца */
+        /* Панель энергии */
+        .energy-panel {
+            background: #0a111ccc;
+            border-radius: 60px;
+            padding: 6px 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            border: 1px solid #4aff9e50;
+        }
+
+        .energy-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .energy-icon {
+            font-size: 1.3rem;
+        }
+
+        .energy-bar-container {
+            flex: 1;
+            height: 28px;
+            background: #2a1a0a;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .energy-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ffd966, #ffb347);
+            border-radius: 30px;
+            transition: width 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #1f1b10;
+        }
+
+        .energy-text {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #ffdd99;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .energy-timer {
+            font-size: 0.65rem;
+            color: #aaffaa;
+            background: #1a2a1a;
+            padding: 4px 10px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+
+        /* Кнопка клика */
         .click-area {
             display: flex;
             justify-content: center;
@@ -176,8 +222,8 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 16px 24px rgba(0, 0, 0, 0.5), inset 0 -5px 0 #a35119, inset 0 3px 10px rgba(255,255,200,0.9);
-            transition: transform 0.05s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.08s ease;
+            box-shadow: 0 16px 24px rgba(0, 0, 0, 0.5), inset 0 -5px 0 #a35119;
+            transition: transform 0.05s, box-shadow 0.08s, opacity 0.1s;
             border: none;
             touch-action: manipulation;
         }
@@ -185,6 +231,15 @@
         .clicker-button:active {
             transform: scale(0.94);
             box-shadow: 0 8px 16px black, inset 0 -2px 0 #a35119;
+        }
+
+        .clicker-button.disabled {
+            opacity: 0.5;
+            filter: grayscale(0.2);
+        }
+
+        .clicker-button.disabled:active {
+            transform: none;
         }
 
         .click-icon {
@@ -202,7 +257,7 @@
             margin-top: 5px;
         }
 
-        /* Блок автокликера */
+        /* Автокликер */
         .auto-control {
             background: #07121a;
             border-radius: 35px;
@@ -221,7 +276,6 @@
             color: #ffc285;
             font-weight: bold;
             flex: 1;
-            line-height: 1.3;
         }
 
         .toggle-auto-btn {
@@ -233,15 +287,10 @@
             font-size: 0.7rem;
             color: #d4ffb0;
             cursor: pointer;
-            transition: 0.05s linear;
+            transition: 0.05s;
             font-family: inherit;
             touch-action: manipulation;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            white-space: nowrap;
-        }
-
-        .toggle-auto-btn:active {
-            transform: scale(0.96);
         }
 
         .toggle-auto-btn.off {
@@ -249,7 +298,6 @@
             color: #ffb0b0;
         }
 
-        /* Кнопка перехода в магазин */
         .nav-button {
             background: linear-gradient(135deg, #ffb347, #ff8c1a);
             border: none;
@@ -264,9 +312,6 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            transition: all 0.08s linear;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-family: inherit;
             margin-bottom: 14px;
             touch-action: manipulation;
         }
@@ -294,7 +339,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: 0.05s linear;
             color: #ffd5a4;
             touch-action: manipulation;
         }
@@ -317,41 +361,17 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 420px;
+            max-height: 400px;
             overflow-y: auto;
-            padding-right: 3px;
             -webkit-overflow-scrolling: touch;
         }
         
         .items-grid::-webkit-scrollbar {
             width: 3px;
         }
-        
-        .items-grid::-webkit-scrollbar-track {
-            background: #1e2a32;
-            border-radius: 10px;
-        }
-        
-        .items-grid::-webkit-scrollbar-thumb {
-            background: #ffb347;
-            border-radius: 10px;
-        }
-
-        /* Анимация появления товаров */
-        @keyframes slideInItem {
-            0% {
-                opacity: 0;
-                transform: translateX(-15px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
 
         .shop-item {
             background: #0d1b24cc;
-            backdrop-filter: blur(4px);
             border-radius: 50px;
             padding: 8px 12px 8px 16px;
             display: flex;
@@ -360,14 +380,13 @@
             flex-wrap: wrap;
             gap: 6px;
             border: 1px solid #e2b15b60;
-            transition: background 0.1s;
             animation: slideInItem 0.3s ease forwards;
             opacity: 0;
-            transform: translateX(-15px);
         }
 
-        .shop-item:active {
-            background: #1a3342cc;
+        @keyframes slideInItem {
+            0% { opacity: 0; transform: translateX(-15px); }
+            100% { opacity: 1; transform: translateX(0); }
         }
 
         .item-info {
@@ -385,13 +404,11 @@
             align-items: center;
             gap: 6px;
             color: #ffeaac;
-            flex-wrap: wrap;
         }
 
         .item-desc {
             font-size: 0.6rem;
             color: #bbaa88;
-            line-height: 1.3;
         }
 
         .limit-badge {
@@ -399,7 +416,6 @@
             padding: 2px 8px;
             border-radius: 25px;
             font-size: 0.55rem;
-            font-weight: bold;
             color: #ffbc6e;
         }
 
@@ -416,7 +432,6 @@
             font-weight: 800;
             font-size: 1rem;
             color: #ffc285;
-            white-space: nowrap;
         }
 
         .price small {
@@ -432,32 +447,25 @@
             border-radius: 35px;
             color: #1f1b10;
             cursor: pointer;
-            box-shadow: 0 2px 0 #7a3e0c;
-            transition: 0.03s linear;
-            font-family: inherit;
             touch-action: manipulation;
         }
 
         .buy-btn:active {
             transform: translateY(2px);
-            box-shadow: 0 0px 0 #7a3e0c;
         }
 
         .buy-btn.disabled-btn, .buy-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             background: #6f5a42;
-            transform: none;
         }
         
         .maxed-badge {
             background: #2d2a1e;
             color: #ffaa55;
-            font-weight: bold;
             padding: 3px 10px;
             border-radius: 30px;
             font-size: 0.65rem;
-            white-space: nowrap;
         }
 
         .reset-area {
@@ -475,7 +483,6 @@
             font-weight: bold;
             font-size: 0.75rem;
             cursor: pointer;
-            transition: 0.05s;
             touch-action: manipulation;
         }
 
@@ -491,7 +498,6 @@
             color: #8a9aa8;
         }
 
-        /* Всплывающие очки */
         .float-number {
             position: fixed;
             pointer-events: none;
@@ -509,45 +515,21 @@
             100% { opacity: 0; transform: translateY(-65px) scale(0.9); }
         }
 
-        /* Адаптация под маленькие телефоны */
         @media (max-width: 400px) {
-            .page {
-                padding: 14px 12px 18px;
-            }
-            .clicker-button {
-                width: 150px;
-                height: 150px;
-            }
-            .click-icon {
-                font-size: 2.6rem;
-            }
-            .score-value {
-                font-size: 1.5rem;
-            }
-            .mult-value {
-                font-size: 1.1rem;
-            }
-            .auto-stats-text {
-                font-size: 0.65rem;
-            }
-            .toggle-auto-btn {
-                padding: 5px 12px;
-                font-size: 0.65rem;
-            }
-            .item-name {
-                font-size: 0.8rem;
-            }
-            .buy-btn {
-                padding: 4px 10px;
-                font-size: 0.65rem;
-            }
+            .clicker-button { width: 150px; height: 150px; }
+            .click-icon { font-size: 2.6rem; }
+            .score-value { font-size: 1.5rem; }
+            .energy-text { font-size: 0.65rem; min-width: 55px; }
+            .energy-bar-container { height: 24px; }
+            .energy-bar { font-size: 0.6rem; }
+            .energy-timer { font-size: 0.55rem; padding: 3px 8px; }
         }
     </style>
 </head>
 <body>
 <div class="game-container">
     <div class="pages-container" id="pagesContainer">
-        <!-- СТРАНИЦА 1: КЛИКЕР -->
+        <!-- ГЛАВНАЯ СТРАНИЦА -->
         <div class="page" id="pageClicker">
             <div class="stats-panel">
                 <div class="score-box">
@@ -555,9 +537,20 @@
                     <span class="score-value" id="counterDisplay">0</span>
                 </div>
                 <div class="multiplier-badge">
-                    <span class="mult-label">×</span>
                     <span class="mult-value" id="multiplierDisplay">1</span>
                 </div>
+            </div>
+
+            <!-- Панель энергии -->
+            <div class="energy-panel">
+                <div class="energy-box">
+                    <span class="energy-icon">⚡</span>
+                    <div class="energy-bar-container">
+                        <div class="energy-bar" id="energyBar" style="width: 100%">100</div>
+                    </div>
+                    <span class="energy-text" id="energyText">100/100</span>
+                </div>
+                <span class="energy-timer" id="energyTimer">+1/5с</span>
             </div>
 
             <div class="click-area">
@@ -572,17 +565,12 @@
                 <button class="toggle-auto-btn" id="toggleAutoBtn">🔘 ВКЛ</button>
             </div>
 
-            <button class="nav-button" id="openShopBtn">
-                🛒 МАГАЗИН →
-            </button>
-
-            <div class="reset-area">
-                <button class="reset-btn" id="resetGameBtn">♻️ СБРОС</button>
-            </div>
-            <footer>👆 Тапай | 🤖 Вкл/Выкл | 🛒 Улучшения</footer>
+            <button class="nav-button" id="openShopBtn">🛒 МАГАЗИН →</button>
+            <div class="reset-area"><button class="reset-btn" id="resetGameBtn">♻️ СБРОС</button></div>
+            <footer>⚡ 1 клик = 1 энергия | Восст. 1 ед./5 сек | Макс 100</footer>
         </div>
 
-        <!-- СТРАНИЦА 2: МАГАЗИН -->
+        <!-- СТРАНИЦА МАГАЗИНА -->
         <div class="page" id="pageShop">
             <div class="stats-panel">
                 <div class="score-box">
@@ -590,21 +578,15 @@
                     <span class="score-value" id="counterDisplay2">0</span>
                 </div>
                 <div class="multiplier-badge">
-                    <span class="mult-label">×</span>
                     <span class="mult-value" id="multiplierDisplay2">1</span>
                 </div>
             </div>
-
             <div class="shop-header">
                 <button class="back-btn" id="backToClickerBtn">←</button>
                 <div class="shop-title">МАГАЗИН (лимит 50)</div>
             </div>
-
             <div class="items-grid" id="shopContainer"></div>
-
-            <div class="reset-area">
-                <button class="reset-btn" id="resetGameBtn2">♻️ СБРОС</button>
-            </div>
+            <div class="reset-area"><button class="reset-btn" id="resetGameBtn2">♻️ СБРОС</button></div>
             <footer>⭐ Максимум 50 шт. каждого</footer>
         </div>
     </div>
@@ -615,10 +597,15 @@
     let totalPoints = 0;          
     let clickPower = 1;           
     let globalMultiplier = 1;     
+    let currentEnergy = 100;
+    const MAX_ENERGY = 100;
+    const ENERGY_REGEN_AMOUNT = 1;
+    const ENERGY_REGEN_INTERVAL = 5000; // 5 секунд
     
     const MAX_ITEM_COUNT = 50;
     let autoEnabled = true;
     let autoInterval = null;
+    let energyRegenInterval = null;
 
     const shopItems = [
         { id: "power1", name: "💪 Палец", desc: "+1 к силе", basePrice: 15, type: "power", value: 1, boughtCount: 0, priceScale: 1.25, maxCount: MAX_ITEM_COUNT },
@@ -643,9 +630,65 @@
     const backToClickerBtn = document.getElementById("backToClickerBtn");
     const resetBtn = document.getElementById("resetGameBtn");
     const resetBtn2 = document.getElementById("resetGameBtn2");
+    const energyBar = document.getElementById("energyBar");
+    const energyText = document.getElementById("energyText");
+    const energyTimerSpan = document.getElementById("energyTimer");
 
     let currentPage = 0;
     let shopInitialized = false;
+
+    // Функции энергии
+    function updateEnergyUI() {
+        const percent = (currentEnergy / MAX_ENERGY) * 100;
+        energyBar.style.width = `${percent}%`;
+        energyBar.innerText = Math.floor(currentEnergy);
+        energyText.innerText = `${Math.floor(currentEnergy)}/${MAX_ENERGY}`;
+        
+        if (currentEnergy <= 0) {
+            clickerBtn.classList.add("disabled");
+        } else {
+            clickerBtn.classList.remove("disabled");
+        }
+    }
+
+    function addEnergy(amount) {
+        let newEnergy = currentEnergy + amount;
+        if (newEnergy > MAX_ENERGY) newEnergy = MAX_ENERGY;
+        if (newEnergy < 0) newEnergy = 0;
+        if (newEnergy !== currentEnergy) {
+            currentEnergy = newEnergy;
+            updateEnergyUI();
+            saveGame();
+        }
+    }
+
+    function spendEnergy(amount) {
+        if (currentEnergy >= amount) {
+            currentEnergy -= amount;
+            updateEnergyUI();
+            return true;
+        }
+        return false;
+    }
+
+    function startEnergyRegen() {
+        if (energyRegenInterval) clearInterval(energyRegenInterval);
+        energyRegenInterval = setInterval(() => {
+            if (currentEnergy < MAX_ENERGY) {
+                addEnergy(ENERGY_REGEN_AMOUNT);
+                // Визуальный эффект восстановления
+                const notif = document.createElement("div");
+                notif.className = "float-number";
+                notif.innerText = `⚡ +${ENERGY_REGEN_AMOUNT}`;
+                notif.style.left = "25%";
+                notif.style.top = "55%";
+                notif.style.fontSize = "0.9rem";
+                notif.style.color = "#aaffaa";
+                document.body.appendChild(notif);
+                setTimeout(() => notif.remove(), 800);
+            }
+        }, ENERGY_REGEN_INTERVAL);
+    }
 
     function switchPage(pageIndex) {
         if (pageIndex === currentPage) return;
@@ -666,10 +709,8 @@
             const price = getPrice(item);
             const canAfford = totalPoints >= price;
             const maxed = item.boughtCount >= item.maxCount;
-            
             const badge = items[i].querySelector('.limit-badge');
             if (badge) badge.innerText = `${item.boughtCount}/${item.maxCount}`;
-            
             const desc = items[i].querySelector('.item-desc');
             if (desc) {
                 let txt = "";
@@ -678,11 +719,9 @@
                 else if (item.type === "auto") txt = `+${item.value}/сек | ${(item.boughtCount * item.value * globalMultiplier).toFixed(1)}/сек`;
                 desc.innerText = `${item.desc} • ${txt}`;
             }
-            
             const priceSpan = items[i].querySelector('.price');
             const buyBtn = items[i].querySelector('.buy-btn');
             const oldMax = items[i].querySelector('.maxed-badge');
-            
             if (!maxed) {
                 if (priceSpan) priceSpan.innerHTML = `${price} <small>🍪</small>`;
                 if (buyBtn) {
@@ -706,9 +745,7 @@
 
     function recalcMultiplier() {
         let bonus = 0;
-        for (let item of shopItems) {
-            if (item.type === "multiplier") bonus += item.boughtCount * item.value;
-        }
+        for (let item of shopItems) if (item.type === "multiplier") bonus += item.boughtCount * item.value;
         globalMultiplier = Math.max(0.1, 1 + bonus);
         multiplierDisplay.innerText = globalMultiplier.toFixed(1);
         multiplierDisplay2.innerText = globalMultiplier.toFixed(1);
@@ -725,20 +762,13 @@
         const base = getAutoBase();
         const real = base * globalMultiplier;
         autoStatsText.innerHTML = `🤖 ${cnt}/${MAX_ITEM_COUNT} шт. → ${real.toFixed(1)}/сек`;
-        
-        if (autoEnabled) {
-            toggleAutoBtn.innerText = "⏸️ ВЫКЛ";
-            toggleAutoBtn.classList.remove("off");
-        } else {
-            toggleAutoBtn.innerText = "▶️ ВКЛ";
-            toggleAutoBtn.classList.add("off");
-        }
+        toggleAutoBtn.innerText = autoEnabled ? "⏸️ ВЫКЛ" : "▶️ ВКЛ";
+        toggleAutoBtn.classList.toggle("off", !autoEnabled);
     }
 
     function restartAutoTimer() {
         if (autoInterval) clearInterval(autoInterval);
         if (!autoEnabled) return;
-        
         autoInterval = setInterval(() => {
             const base = getAutoBase();
             if (base > 0 && autoEnabled) {
@@ -767,31 +797,30 @@
     function buyItem(id) {
         const item = shopItems.find(i => i.id === id);
         if (!item) return;
-        if (item.boughtCount >= item.maxCount) {
-            showMsg(`❌ Лимит ${item.maxCount}`, "#ff8866");
-            return;
-        }
+        if (item.boughtCount >= item.maxCount) { showMsg(`❌ Лимит ${item.maxCount}`, "#ff8866"); return; }
         const price = getPrice(item);
         if (totalPoints >= price) {
             totalPoints -= price;
             item.boughtCount++;
-            
             if (item.type === "power") clickPower += item.value;
             else if (item.type === "multiplier") recalcMultiplier();
             else if (item.type === "auto") updateAutoUI();
-            
             recalcMultiplier();
             updateAutoUI();
             updateCounters();
             if (currentPage === 1 && shopInitialized) updateShopUI();
             saveGame();
             showMsg(`✔ ${item.name} (${item.boughtCount}/${item.maxCount})`, "#b5e0a0");
-        } else {
-            showMsg("😭 Не хватает!", "#ffaa66");
-        }
+        } else showMsg("😭 Не хватает!", "#ffaa66");
     }
 
     function clickHandler() {
+        if (currentEnergy < 1) {
+            showMsg("😴 Нет энергии! Жди 5 секунд", "#ff8866");
+            return;
+        }
+        if (!spendEnergy(1)) return;
+        
         let earned = Math.floor(clickPower * globalMultiplier);
         if (earned < 1) earned = 1;
         totalPoints += earned;
@@ -841,14 +870,11 @@
             const price = getPrice(item);
             const canAfford = totalPoints >= price;
             const maxed = item.boughtCount >= item.maxCount;
-            
             const div = document.createElement("div");
             div.className = "shop-item";
             div.style.animationDelay = `${i * 0.04}s`;
-            
             const info = document.createElement("div");
             info.className = "item-info";
-            
             const nameSpan = document.createElement("div");
             nameSpan.className = "item-name";
             const limitSpan = document.createElement("span");
@@ -856,7 +882,6 @@
             limitSpan.innerText = `${item.boughtCount}/${item.maxCount}`;
             nameSpan.innerHTML = `${item.name} `;
             nameSpan.appendChild(limitSpan);
-            
             const descSpan = document.createElement("div");
             descSpan.className = "item-desc";
             let effect = "";
@@ -864,28 +889,19 @@
             else if (item.type === "multiplier") effect = `+${item.value} | ×${(1 + item.boughtCount * item.value).toFixed(1)}`;
             else if (item.type === "auto") effect = `+${item.value}/сек | ${(item.boughtCount * item.value * globalMultiplier).toFixed(1)}/сек`;
             descSpan.innerText = `${item.desc} • ${effect}`;
-            
             info.appendChild(nameSpan);
             info.appendChild(descSpan);
-            
             const action = document.createElement("div");
             action.className = "price-action";
             const priceSpan = document.createElement("span");
             priceSpan.className = "price";
-            
             if (!maxed) {
                 priceSpan.innerHTML = `${price} <small>🍪</small>`;
                 const btn = document.createElement("button");
                 btn.innerText = "Купить";
                 btn.className = "buy-btn";
-                if (!canAfford) {
-                    btn.disabled = true;
-                    btn.classList.add("disabled-btn");
-                }
-                btn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    buyItem(item.id);
-                });
+                if (!canAfford) btn.disabled = true;
+                btn.addEventListener("click", (e) => { e.stopPropagation(); buyItem(item.id); });
                 action.appendChild(priceSpan);
                 action.appendChild(btn);
             } else {
@@ -896,7 +912,6 @@
                 action.appendChild(priceSpan);
                 action.appendChild(maxSpan);
             }
-            
             div.appendChild(info);
             div.appendChild(action);
             shopContainer.appendChild(div);
@@ -908,9 +923,11 @@
             totalPoints = 0;
             clickPower = 1;
             autoEnabled = true;
+            currentEnergy = MAX_ENERGY;
             shopItems.forEach(i => i.boughtCount = 0);
             recalcMultiplier();
             updateAutoUI();
+            updateEnergyUI();
             restartAutoTimer();
             updateCounters();
             shopInitialized = false;
@@ -924,9 +941,8 @@
 
     function saveGame() {
         localStorage.setItem("clickerSave", JSON.stringify({
-            points: totalPoints,
-            power: clickPower,
-            autoEnabled: autoEnabled,
+            points: totalPoints, power: clickPower, autoEnabled: autoEnabled,
+            energy: currentEnergy,
             items: shopItems.map(i => ({ id: i.id, count: i.boughtCount }))
         }));
     }
@@ -939,6 +955,7 @@
             totalPoints = data.points || 0;
             clickPower = data.power || 1;
             autoEnabled = data.autoEnabled !== undefined ? data.autoEnabled : true;
+            currentEnergy = data.energy !== undefined ? data.energy : MAX_ENERGY;
             if (data.items) {
                 for (let s of data.items) {
                     const target = shopItems.find(i => i.id === s.id);
@@ -947,6 +964,7 @@
             }
             recalcMultiplier();
             updateAutoUI();
+            updateEnergyUI();
             restartAutoTimer();
             updateCounters();
             return true;
@@ -957,8 +975,9 @@
         loadGame();
         recalcMultiplier();
         updateAutoUI();
+        updateEnergyUI();
         updateCounters();
-        
+        startEnergyRegen();
         clickerBtn.addEventListener("click", clickHandler);
         clickerBtn.addEventListener("touchstart", (e) => { e.preventDefault(); clickHandler(); });
         toggleAutoBtn.addEventListener("click", toggleAuto);
@@ -967,7 +986,6 @@
         resetBtn.addEventListener("click", resetGame);
         resetBtn2.addEventListener("click", resetGame);
     }
-
     init();
 </script>
 </body>
